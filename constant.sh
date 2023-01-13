@@ -2,6 +2,7 @@
 
 set -u
 
+declare optsList='a b e f h k m n p t u v x B C E H P T'
 #
 # 0 == off
 # 1 == on
@@ -14,8 +15,9 @@ collectSetDef() {
 
 	#initialize to off
 
-	for opt in a b e f h k m n p t u v x B C E H P T
+	for opt in $optsList
 	do
+		#echo "opt: $opt"
 		setopts[$opt]=0
 	done
 	
@@ -31,6 +33,7 @@ collectSetDef() {
 
 }
 
+# This just displays the saved settings
 showSet() {
 
 	# bash 4.3.48 - seems to be sorting the keys
@@ -39,6 +42,20 @@ showSet() {
 		echo "set $setOpt: ${setopts[$setOpt]}"	
 	done
 
+}
+
+# display current settings
+showCurrent() {
+	local currOpts=$-
+	for opt in $optsList
+	do
+		echo -n "opt: $opt "
+		if [[ $opt =~ [$currOpts] ]]; then
+			echo "1"
+		else
+			echo "0"
+		fi
+	done
 }
 
 # reset a setting to the original value
@@ -57,16 +74,22 @@ resetSet() {
 
 	local cmd='set -'
 	if [[ ${setopts[$setOpt]} -eq 0 ]]; then
-		eval "set +$setOpt"
+		# I do not recall why eval was used here
+		# perhaps just a mistake
+		#eval "set +$setOpt"
+		set +${setOpt}
 	else
-		eval "set -$setOpt"
+		#eval "set -$setOpt"
+		set -${setOpt}
 	fi
 
 	# set the +-u back to original
 	if [[ ${setopts[u]} -eq 0 ]]; then
-		eval "set +u"
+		#eval "set +u"
+		set +u
 	else
-		eval "set -u"
+		#eval "set -u"
+		set -u
 	fi
 
 }
@@ -128,5 +151,10 @@ myvar='changed'
 
 echo "myvar: $myvar"
 
+echo
+echo validate showCurrent
+set +u
+showCurrent
+echo $-
 
 
